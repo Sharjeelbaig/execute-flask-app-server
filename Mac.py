@@ -1,7 +1,11 @@
-from flask import Flask, request
+from flask import Flask, render_template
 import subprocess
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='frontend')
+
+@app.route('/')
+def index():
+    return render_template('mac.html')
 
 # Run command
 @app.route('/<path:dummy>')

@@ -1,17 +1,9 @@
-from flask import Flask, render_template
-import subprocess
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux System Control</title>
+  <title>Mac System Control</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -76,12 +68,12 @@ def index():
 </head>
 <body>
   <div class="container">
-    <h1>Linux System Control</h1>
+    <h1>Mac System Control</h1>
     
     <!-- Run Command -->
     <form id="runCommandForm">
       <label for="commandInput">Run a Command:</label>
-      <input type="text" id="commandInput" placeholder="Enter a Linux command (e.g., ls -l)">
+      <input type="text" id="commandInput" placeholder="Enter a Mac command (e.g., ls -l)">
       <button type="submit">Run Command</button>
     </form>
     <pre id="commandOutput">Command output will appear here...</pre>
@@ -120,82 +112,10 @@ def index():
 
     // List All Applications
     document.getElementById('listAppsButton').addEventListener('click', async () => {
-      const response = await fetch('/listAllLinuxApps');
+      const response = await fetch('/listAllMacApps');
       const apps = await response.text();
       document.getElementById('appList').innerHTML = apps;
     });
   </script>
 </body>
 </html>
-
-'''
-
-# Run command
-@app.route('/<path:dummy>')
-def hello_world(dummy):
-    # Convert %20 to space, then convert spaces into an array
-    command = dummy.replace('%20', ' ').split(' ')
-
-    try:
-        output = subprocess.check_output(command, text=True)
-        return {
-            'output': output,
-            'command': command
-        }
-    except subprocess.CalledProcessError as e:
-        return {
-            'error': str(e),
-            'command': command
-        }, 400
-    except Exception as e:
-        return {
-            'error': f"Unexpected Error: {e}",
-            'command': command
-        }, 500
-
-# Open application
-@app.route('/openApp/<appname>')
-def open_app(appname):
-    command = ['xdg-open', appname]
-    try:
-        output = subprocess.check_output(command, text=True)
-        return {
-            'output': output,
-            'command': command
-        }
-    except subprocess.CalledProcessError as e:
-        return {
-            'error': str(e),
-            'command': command
-        }, 400
-    except Exception as e:
-        return {
-            'error': f"Unexpected Error: {e}",
-            'command': command
-        }, 500
-
-# List all desktop entries (applications)
-@app.route('/listAllLinuxApps')
-def list_all_linux_apps():
-    command = ['ls', '/usr/share/applications']
-    try:
-        output = subprocess.check_output(command, text=True)
-        return f"""
-        <h1>Applications</h1>
-        <ol>
-            <li>{'</li><li>'.join(output.split())}</li>
-        </ol>
-        """
-    except subprocess.CalledProcessError as e:
-        return {
-            'error': str(e),
-            'command': command
-        }, 400
-    except Exception as e:
-        return {
-            'error': f"Unexpected Error: {e}",
-            'command': command
-        }, 500
-
-if __name__ == '__main__':
-    app.run()
